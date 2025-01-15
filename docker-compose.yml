@@ -7,7 +7,7 @@ services:
       context: .
       args:
         - REACT_APP_NODE_ENV=production
-        - REACT_APP_SERVER_BASE_URL=http://backendmarket.cognitosoft.net  # Your AWS backend URL
+        - REACT_APP_SERVER_BASE_URL=http://13.61.176.80:5000  # Your AWS backend URL
     ports:
       - "5173:80"  # Map to the port you're using
     networks:
