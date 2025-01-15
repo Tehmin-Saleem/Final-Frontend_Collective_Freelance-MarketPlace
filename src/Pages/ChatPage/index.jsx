@@ -161,7 +161,8 @@ const Chat = () => {
 
       // Define search route based on user role
       let route;
-      if (userRole === "client") { const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+      if (userRole === "client") { 
         // Clients should search for freelancers
         route = `${BASE_URL}/api/client/searchFreelancers?search=${search}`;
       } else if (userRole === "freelancer") {
@@ -245,6 +246,7 @@ const Chat = () => {
           Authorization: `Bearer ${token}`,
         },
       };
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const { data } = await axios.post(
         `${BASE_URL}/api/client/accesschats`,
         { userId },
@@ -590,8 +592,9 @@ const Chat = () => {
       const userRole = decodedToken.role;
 
       let route;
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       if (userRole === "client") {
-        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+       
         route = `${BASE_URL}/api/client/deletechat/${chatId}`;
       } else if (userRole === "freelancer") {
         // Freelancers use this route to delete chats
