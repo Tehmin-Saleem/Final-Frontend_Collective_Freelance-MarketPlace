@@ -73,7 +73,7 @@ const IndexPage = () => {
                 ? userCountryMap[freelancerId] || "Unknown"
                 : "Unknown",
               image: proposal.freelancerProfile?.image,
-              ProposalID: proposal._id,
+              ProposalId: proposal._id,
               status: proposal.status || "Available", // Add this line to include the status
             };
           }
@@ -139,7 +139,7 @@ const IndexPage = () => {
   const handleHireSuccess = (proposalId) => {
     setProposals((prevProposals) =>
       prevProposals.map((p) =>
-        p.ProposalID === proposalId ? { ...p, status: "Hired" } : p
+        p.ProposalId === proposalId ? { ...p, status: "Hired" } : p
       )
     );
   };
@@ -174,7 +174,7 @@ const IndexPage = () => {
             >
               <Proposalscard
                 freelancerId={proposal.freelancer_id} // Add this line
-                ProposalID={proposal.id}
+                ProposalId={proposal._id}
                 onHireSuccess={handleHireSuccess}
                 name={proposal.freelancerProfile?.name || "No Name"}
                 title={proposal.freelancerProfile?.experience?.title || ""}
