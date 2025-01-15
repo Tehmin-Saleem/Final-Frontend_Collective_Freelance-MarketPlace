@@ -128,6 +128,8 @@ function SignIn() {
       Cookies.remove("savedEmail");
       Cookies.remove("savedPassword");
     }
+
+    
     const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
     try {
       const response = await fetch(`${BASE_URL}/api/client/login`, {
