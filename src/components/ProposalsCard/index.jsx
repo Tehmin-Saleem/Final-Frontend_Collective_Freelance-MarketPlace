@@ -91,7 +91,7 @@ const ProposalCard = ({
 
       console.log("Fetching reviews for freelancerId:", freelancerId);
       setLoading(true);
-
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await axios.get(
         `${BASE_URL}/api/freelancer/${freelancerId}/reviews`,
         {
@@ -138,7 +138,7 @@ const ProposalCard = ({
       if (!token) {
         throw new Error("No authentication token found");
       }
-
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await axios.get(
         `${BASE_URL}/api/client/hire/${ProposalID}`,
         {
@@ -196,6 +196,7 @@ const ProposalCard = ({
 
     try {
       const token = localStorage.getItem("token");
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await axios.post(
         `${BASE_URL}/api/client/hire/${ProposalID}`,
         { status: "hired" }, // Send the status in the request body
