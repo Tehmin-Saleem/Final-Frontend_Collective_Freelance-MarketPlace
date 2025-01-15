@@ -40,12 +40,6 @@ const OfferDetails = () => {
           return;
         }
 
-        // Basic validation on the frontend
-        const validHexRegex = /^[0-9a-fA-F]{24}$/;
-        if (!validHexRegex.test(offerId)) {
-          throw new Error(`Invalid offer ID format: ${offerId}. Must be a 24-character hexadecimal string.`);
-        }
-
         const token = localStorage.getItem("token");
         if (!token) {
           throw new Error("Authentication token not found");
