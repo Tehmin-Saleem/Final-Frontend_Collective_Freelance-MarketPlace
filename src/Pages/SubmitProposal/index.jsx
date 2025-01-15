@@ -752,7 +752,7 @@ const SubmitProposal = () => {
                     <div className="error-message">{errors.portfolio_link}</div>
                   )}
                   {/* </div> */}
-                  {formData.thumbnail ? (
+                  {/* {formData.thumbnail ? (
                     <div className="thumbnail-preview">
                       <img src={formData.thumbnail} alt="Portfolio Thumbnail" />
                     </div>
@@ -763,7 +763,7 @@ const SubmitProposal = () => {
                         alt="Default Thumbnail"
                       />
                     </div>
-                  )}
+                  )} */}
 
                   <div className="actions">
                     <button

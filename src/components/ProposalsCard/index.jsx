@@ -20,7 +20,7 @@ const Toast = ({ message, onClose }) => (
 );
 
 const ProposalCard = ({
-  ProposalID,
+  ProposalId,
   name,
   title,
   location,
@@ -40,7 +40,7 @@ const ProposalCard = ({
   const { jobStatuses, updateJobStatus, isAnyProposalHired } = useJobStatus();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState(jobStatuses[ProposalID] || "pending"); // Initialize as null instead of initialStatus
+  const [status, setStatus] = useState(jobStatuses[ProposalId] || "pending"); // Initialize as null instead of initialStatus
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [freelancerData, setFreelancerData] = useState(null);
@@ -128,10 +128,10 @@ const ProposalCard = ({
   // Fetch current proposal status when component mounts
   useEffect(() => {
     fetchProposalStatus();
-  }, [ProposalID]);
+  }, [ProposalId]);
 
   const fetchProposalStatus = async () => {
-    if (!ProposalID) return;
+    if (!ProposalId) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -140,7 +140,7 @@ const ProposalCard = ({
       }
       const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await axios.get(
-        `${BASE_URL}/api/client/hire/${ProposalID}`,
+        `${BASE_URL}/api/client/hire/${ProposalId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -153,7 +153,7 @@ const ProposalCard = ({
       console.log('status', response.data)
       if (response.data && response.data.status) {
         setStatus(response.data.status);
-        updateJobStatus(ProposalID, response.data.status); // Update context with fetched status
+        updateJobStatus(ProposalId, response.data.status); // Update context with fetched status
       } else {
         // If no status is returned, set it to the default status
         setStatus("pending");
@@ -184,21 +184,21 @@ const ProposalCard = ({
   }, [status, isAnyProposalHired]);
   const handleHireClick = async (e) => {
     e.stopPropagation();
-
-    if (!ProposalID) {
+  
+    if (!ProposalId) {
       setError("Invalid proposal ID");
-      console.error("ProposalID is undefined");
+      console.error("ProposalId is undefined");
       return;
     }
-
+  
     setIsLoading(true);
     setError(null);
-
+  
     try {
       const token = localStorage.getItem("token");
-      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
       const response = await axios.post(
-        `${BASE_URL}/api/client/hire/${ProposalID}`,
+        `${BASE_URL}/api/client/hire/${ProposalId}`,
         { status: "hired" }, // Send the status in the request body
         {
           headers: {
@@ -207,11 +207,11 @@ const ProposalCard = ({
           },
         }
       );
-
+  
       if (response.status === 200) {
-        onHireSuccess?.(ProposalID);
+        onHireSuccess?.(ProposalId);
         setStatus("hired");
-        updateJobStatus(ProposalID, "hired");
+        updateJobStatus(ProposalId, "hired");
         showNotification("Freelancer hired successfully!");
       }
     } catch (error) {
@@ -225,10 +225,11 @@ const ProposalCard = ({
       setIsLoading(false);
     }
   };
+  
 
   const handleChatClick = async () => {
     navigate("/chat");
-    if (!ProposalID) {
+    if (!ProposalId) {
       console.error("Invalid proposal ID for chat");
       return;
     }
@@ -237,7 +238,7 @@ const ProposalCard = ({
       const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${BASE_URL}/api/client/proposal/${ProposalID}`,
+        `${BASE_URL}/api/client/proposal/${ProposalId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -251,7 +252,7 @@ const ProposalCard = ({
         setFreelancerData(response.data);
         navigate("/chat", {
           state: {
-            proposalId: ProposalID,
+            ProposalId: ProposalId,
             freelancerData: response.data,
           },
         });

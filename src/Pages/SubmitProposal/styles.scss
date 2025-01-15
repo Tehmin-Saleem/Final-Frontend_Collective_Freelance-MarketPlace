@@ -305,22 +305,24 @@ textarea {
         background: #f0f0f0;
         border: 1px solid #ccc;
         border-radius: 4px;
-        padding: 0.5rem 1rem;
+        padding: 1rem 3rem; /* Adjusted padding for decreased height and increased width */
         font-size: 1rem;
         cursor: pointer;
-        margin-right: 40rem;
+        margin-right: 30rem;
+        
     }
-  
+    
     .submit {
         background: $color-accent;
         color: #fff;
         border: none;
         border-radius: 6px;
-        padding: 0.75rem 1.5rem;
+        padding: 1rem 1rem; /* Adjusted padding for decreased height and increased width */
         font-size: 1rem;
         cursor: pointer;
        
     }
+    
   } }  
   .error-message {
     color: #dc3545;
