@@ -583,6 +583,7 @@ const ProjectDetails = ({
       } else {
         // Fetch progress for regular projects
         const id = project.proposalDetails.Proposal_id._id;
+        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
         response = await axios.get(
           `${BASE_URL}/api/client/project-progress/${id}?client_id=${userId}`,
           {
@@ -1394,7 +1395,7 @@ const ProjectDetails = ({
         console.error("Client ID not found in userInfo");
         return;
       }
-
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       console.log("Client ID for fetching the remarks:", clientId);
 
       // Send the job_title (project name) and clientId as query parameters in the URL

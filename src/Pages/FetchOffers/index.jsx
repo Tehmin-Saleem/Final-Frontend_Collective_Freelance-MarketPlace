@@ -44,12 +44,13 @@ const OfferCards = () => {
             },
           }
         );
+       
         const sortedOffers = [...response.data].sort((a, b) => {
           const dateA = new Date(a.createdAt || 0);
           const dateB = new Date(b.createdAt || 0);
           return dateB - dateA;
         });
-
+        console.log('offers', sortedOffers)
         console.log(
           "Sorted offers:",
           sortedOffers.map((o) => ({

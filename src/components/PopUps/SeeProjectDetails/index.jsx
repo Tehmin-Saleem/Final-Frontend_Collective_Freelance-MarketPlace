@@ -78,7 +78,7 @@ const ProjectDetailsModal = () => {
         setError('Consultant ID is missing. Please log in again.');
         return;
       }
-  
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await axios.get(
         `${BASE_URL}/api/client/${offerId}/${consultantId}`,
         {
