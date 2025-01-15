@@ -322,7 +322,7 @@ const EditableProjectCard = ({ project, onSave, onComplete }) => {
         typeof freelancerData.budget === "string"
           ? parseFloat(freelancerData.budget.replace(/[^0-9.-]+/g, ""))
           : freelancerData.budget;
-
+          const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await axios({
         method: "POST",
         url: `${BASE_URL}/api/freelancer/manageproj`,
