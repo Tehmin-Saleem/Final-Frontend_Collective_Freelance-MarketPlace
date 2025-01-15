@@ -406,7 +406,7 @@ const OfferDetails = () => {
           </div>
         </div>
       </main>
-      {toast.show && <Toast message={toast.message} type={toast.type} />}
+      {toast.show && <toast message={toast.message} type={toast.type} />}
     </div>
   );
 };
