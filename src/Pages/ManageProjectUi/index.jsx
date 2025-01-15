@@ -544,6 +544,7 @@ const ProjectDetails = ({
 
       if (project.type === "offer") {
         // Fetch progress for offers
+        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
         response = await axios.get(
           `${BASE_URL}/api/client/offer-progress`,
           {
