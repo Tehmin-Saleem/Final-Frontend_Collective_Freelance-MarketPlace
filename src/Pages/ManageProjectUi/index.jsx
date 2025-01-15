@@ -2162,7 +2162,7 @@ const PayPalPaymentButton = ({
       if (!paymentData.projectId) {
         throw new Error("Project ID is missing");
       }
-
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
       // Process payment on the backend
       const paymentResponse = await axios.post(
         `${BASE_URL}/api/client/process-payment`,

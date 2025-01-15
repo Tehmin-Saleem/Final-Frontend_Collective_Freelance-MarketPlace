@@ -77,7 +77,7 @@ const { TextArea } = Input;
         ),
         consultant_id: selectedConsultant.consultant_id
       };
-  
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
       const response = await fetch(
         `${BASE_URL}/api/client/send-offer-to-consultant/${selectedConsultant.consultant_id}`,
         {

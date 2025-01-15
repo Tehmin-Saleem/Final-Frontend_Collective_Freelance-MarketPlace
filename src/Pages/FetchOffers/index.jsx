@@ -32,9 +32,10 @@ const OfferCards = () => {
         setLoading(false);
         return;
       }
-
+  
       try {
         const token = localStorage.getItem("token");
+        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
         const response = await axios.get(
           `${BASE_URL}/api/freelancer/offer/${freelancerId}`,
           {
@@ -44,35 +45,31 @@ const OfferCards = () => {
             },
           }
         );
-       
+  
         const sortedOffers = [...response.data].sort((a, b) => {
           const dateA = new Date(a.createdAt || 0);
           const dateB = new Date(b.createdAt || 0);
           return dateB - dateA;
         });
-        console.log('offers', sortedOffers)
-        console.log(
-          "Sorted offers:",
-          sortedOffers.map((o) => ({
-            title: o.job_title,
-            date: o.createdAt,
-          }))
-        );
-        console.log('offers', sortedOffers)
+        console.log('Fetched offers:', sortedOffers); // Log the fetched offers
         setOffers(sortedOffers);
       } catch (err) {
+        console.error('Error fetching offers:', err); // Log the error
         setOffers([]);
       } finally {
         setLoading(false); // Stop loading after fetching data
       }
     };
-
+  
     fetchOffers();
   }, []); // Empty dependency array to run only once when the component mounts
+  
 
   const handleAcceptOffer = async (offerId) => {
     try {
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
       const token = localStorage.getItem("token");
+      console.log('Accepting offer with ID:', offerId); // Log the offerId
       await axios.patch(
         `${BASE_URL}/api/freelancer/offers/${offerId}`,
         { status: "accepted" },
@@ -82,27 +79,29 @@ const OfferCards = () => {
           },
         }
       );
-
+  
       // Update local state
       setOffers((prevOffers) =>
         prevOffers.map((offer) =>
           offer._id === offerId ? { ...offer, status: "accepted" } : offer
         )
       );
-
+  
       alert("Offer accepted successfully");
     } catch (error) {
+      console.error('Error accepting offer:', error); // Log the error
       alert(
         "Failed to accept offer: " +
           (error.response?.data?.message || "Unknown error")
       );
     }
   };
-
+  
   const handleDeclineOffer = async (offerId) => {
     try {
-      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
       const token = localStorage.getItem("token");
+      console.log('Declining offer with ID:', offerId); // Log the offerId
       await axios.patch(
         `${BASE_URL}/api/freelancer/offers/${offerId}`,
         { status: "declined" },
@@ -112,22 +111,25 @@ const OfferCards = () => {
           },
         }
       );
-
+  
       // Update local state
       setOffers((prevOffers) =>
         prevOffers.map((offer) =>
           offer._id === offerId ? { ...offer, status: "declined" } : offer
         )
       );
-
+  
       alert("Offer declined successfully");
     } catch (error) {
+      console.error('Error declining offer:', error); // Log the error
       alert(
         "Failed to decline offer: " +
           (error.response?.data?.message || "Unknown error")
       );
     }
   };
+  
+  
 
   const handleViewFile = (fileUrl, fileType) => {
     setFileUrl(fileUrl);
