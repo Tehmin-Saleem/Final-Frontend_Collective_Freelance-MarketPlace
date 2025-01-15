@@ -171,7 +171,7 @@ const SubmitProposal = () => {
 
         const decodedToken = jwtDecode(token);
         const userId = decodedToken.userId; // Adjust this based on your token structure
-
+        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
         const response = await fetch(
           `${BASE_URL}/api/freelancer/profile`,
           {
@@ -217,6 +217,7 @@ const SubmitProposal = () => {
         navigate("/signin");
         return;
       }
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await fetch(
         `${BASE_URL}/api/client/job-posts/${jobPostId}`,
         {
@@ -340,7 +341,7 @@ const SubmitProposal = () => {
       formDataToSend.append("portfolio_link", formData.portfolio_link);
       formDataToSend.append("client_id", jobDetails._id);
       // Removed: formDataToSend.append('freelancer_id', userId);
-
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
       const response = await fetch(
         `${BASE_URL}/api/freelancer/proposal/${jobPostId}`,
         {

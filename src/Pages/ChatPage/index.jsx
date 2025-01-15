@@ -17,7 +17,7 @@ import io from "socket.io-client";
 import animationData from "../../animations/typing.json";
 import { jwtDecode } from "jwt-decode";
 
-const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
+ const ENDPOINT = 'http://13.61.176.80:5000';; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 var socket, selectedChatCompare;
 
 const Chat = () => {

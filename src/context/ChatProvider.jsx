@@ -46,6 +46,7 @@ const ChatProvider = ({ children }) => {
         userData = response.data;
         setUser(userData); // Set profile data specifically for freelancers
       } else if (userRole === 'client') {
+        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
         // If the user is a client, fetch client-specific data
         const response = await axios.get(`${BASE_URL}/api/client/users/${userId}`, {
           headers,
