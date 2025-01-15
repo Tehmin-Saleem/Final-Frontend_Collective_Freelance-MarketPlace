@@ -13,13 +13,16 @@ const OfferDetails = () => {
   const [fileType, setFileType] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const location = useLocation();
-  const notificationId = location.pathname.split("/").pop();
+  const offerId = location.pathname.split("/").pop();
 
   const [toast, setToast] = useState({
     show: false,
     message: "",
     type: "success",
   });
+
+  console.log('offerid', offerId);
+
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     // Hide toast after 10 seconds
@@ -27,32 +30,52 @@ const OfferDetails = () => {
       setToast({ show: false, message: "", type: "success" });
     }, 10000);
   };
+
   useEffect(() => {
     const fetchOfferDetails = async () => {
       try {
+        if (!offerId) {
+          setError("No offer ID provided");
+          setLoading(false);
+          return;
+        }
+
+        // Basic validation on the frontend
+        const validHexRegex = /^[0-9a-fA-F]{24}$/;
+        if (!validHexRegex.test(offerId)) {
+          throw new Error(`Invalid offer ID format: ${offerId}. Must be a 24-character hexadecimal string.`);
+        }
+
         const token = localStorage.getItem("token");
-        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+
+        console.log('Token:', token); // Log the token
+
+        const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
+        console.log('Fetching offer with ID:', offerId);
+        console.log('Request URL:', `${BASE_URL}/api/freelancer/offers/${offerId}`);
+
         const response = await axios.get(
-          `${BASE_URL}/api/freelancer/offers/${notificationId}`,
+          `${BASE_URL}/api/freelancer/offers/${offerId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log("offer response", response.data);
+
+        console.log("Offer API Response:", response.data);
         const fetchedOffer = response.data;
         setOffer(fetchedOffer);
-        console.log("fetchedh ", fetchedOffer);
-        // Handle file type and URL setting...
+
+        // Handle attachments
         if (fetchedOffer.attachment?.fileType) {
           setFileType(fetchedOffer.attachment.fileType);
           setFileUrl(fetchedOffer.attachment.path);
         } else if (fetchedOffer.attachment?.fileName) {
-          const extension = fetchedOffer.attachment.fileName
-            .split(".")
-            .pop()
-            .toLowerCase();
+          const extension = fetchedOffer.attachment.fileName.split(".").pop().toLowerCase();
           if (["jpg", "jpeg", "png"].includes(extension)) {
             setFileType("image/" + extension);
           } else if (extension === "pdf") {
@@ -63,15 +86,17 @@ const OfferDetails = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching offer details:", error);
-        setError(
-          error.response?.data?.message || "Failed to fetch offer details"
-        );
+        const errorMessage = error.response?.data?.message
+          ? `${error.response.data.message} ${error.response.data.details || ''}`
+          : error.message || "Failed to fetch offer details";
+
+        setError(errorMessage);
         setLoading(false);
       }
     };
 
     fetchOfferDetails();
-  }, [notificationId]);
+  }, [offerId]);
 
   const getReviewPercentage = (completedJobs) => {
     const maxJobs = 100; // Set a maximum completed jobs value (can be adjusted)
@@ -81,11 +106,11 @@ const OfferDetails = () => {
   const handleAcceptOffer = async () => {
     try {
       setSubmitLoading(true);
-      console.log("Accepting offer:", notificationId);
+      console.log("Accepting offer:", offerId);
       const token = localStorage.getItem("token");
-      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
       const updateResponse = await axios.patch(
-        `${BASE_URL}/api/freelancer/offers/${notificationId}`,
+        `${BASE_URL}/api/freelancer/offers/${offerId}`,
         { status: "accepted" },
         {
           headers: {
@@ -123,14 +148,16 @@ const OfferDetails = () => {
       setSubmitLoading(false);
     }
   };
+
   const handleDeclineOffer = async () => {
     try {
       setSubmitLoading(true);
-      console.log("Declining offer:", notificationId);
+      console.log("Declining offer:", offerId);
       const token = localStorage.getItem("token");
+      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
 
       const updateResponse = await axios.patch(
-        `${BASE_URL}/api/freelancer/offers/${notificationId}`,
+        `${BASE_URL}/api/freelancer/offers/${offerId}`,
         { status: "declined" },
         {
           headers: {
@@ -142,19 +169,16 @@ const OfferDetails = () => {
       console.log("Decline offer response:", updateResponse.data);
 
       if (updateResponse.data) {
-        // Update local state
         setOffer((prev) => ({
           ...prev,
           status: "declined",
         }));
         alert("Offer declined successfully");
       } else {
-        console.error("No data in update response");
         throw new Error("Failed to update offer status");
       }
     } catch (error) {
       console.error("Error declining offer:", error);
-      // Show error to user
       alert(
         "Failed to decline offer: " +
           (error.response?.data?.message || "Unknown error")
@@ -209,9 +233,11 @@ const OfferDetails = () => {
       </div>
     );
   }
+
   const reviewPercentage = getReviewPercentage(
     offer.clientStats?.completedJobs || 0
   );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

@@ -10,7 +10,7 @@ export const NotificationProvider = ({ children }) => {
 
     const fetchNotifications = useCallback(async () => {
         try {
-            const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+            const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
             const token = localStorage.getItem('token');
             console.log('Fetching notifications with token:', token);
             const response = await axios.get(`${BASE_URL}/api/freelancer/notifications`, {
@@ -35,9 +35,8 @@ export const NotificationProvider = ({ children }) => {
 
     const fetchUnreadCount = useCallback(async () => {
         try {
-            
             const token = localStorage.getItem('token');
-            const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+            const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
             const response = await axios.get(`${BASE_URL}/api/freelancer/notifications/unread-count`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -61,11 +60,13 @@ export const NotificationProvider = ({ children }) => {
                 await fetchNotifications();
                 await fetchUnreadCount();
 
-                SocketManager.onNotification((notification) => {
+                const unsubscribe = SocketManager.addNotificationListener((notification) => {
                     console.log('New notification received:', notification);
                     setNotifications(prev => [notification, ...prev]);
                     setUnreadCount(prevCount => prevCount + 1);
-                  });
+                });
+
+                return unsubscribe;
             } catch (error) {
                 console.error('Error initializing notifications:', error);
             }
@@ -75,27 +76,27 @@ export const NotificationProvider = ({ children }) => {
 
         const intervalId = setInterval(() => {
             fetchUnreadCount();
-          }, 60000); 
-        
-          
-          fetchUnreadCount();
-        
-         
-          return () => {
-            SocketManager.disconnect(); 
-            clearInterval(intervalId);   
-          };
-        }, [fetchNotifications, fetchUnreadCount]);
+        }, 60000);
+
+        fetchUnreadCount();
+
+        return () => {
+            SocketManager.disconnect();
+            clearInterval(intervalId);
+        };
+    }, [fetchNotifications, fetchUnreadCount]);
+
     const markAsRead = async (notificationId) => {
         try {
+            const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
             const token = localStorage.getItem('token');
             await axios.put(`${BASE_URL}/api/freelancer/notifications/${notificationId}/read`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-           
+
             setNotifications(prevNotifications =>
                 prevNotifications.map(notif =>
-                notif._id === notificationId ? { ...notif, is_read: true } : notif
+                    notif._id === notificationId ? { ...notif, is_read: true } : notif
                 )
             );
             console.log("Notification ID being sent:", notificationId);

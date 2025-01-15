@@ -227,7 +227,7 @@ function App() {
           <Route path="/ChangePass/:id/:token" element={<ChangePassword />} />
           {/* <Route path="/OfferDetails/:id" element={<OfferDetails/>} />  */}
           <Route
-            path="/OfferDetails/:notificationId"
+            path="/OfferDetails/:offerId"
             element={<OfferDetails />}
           />
           <Route path="/ClientDash" element={<Clientdash />} />
