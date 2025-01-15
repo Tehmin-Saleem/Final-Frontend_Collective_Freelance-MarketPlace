@@ -279,10 +279,10 @@ const Header = () => {
         </Link>
       </div>
       <div className="header-bottom">
-        <div className="search-bar">
+        {/* <div className="search-bar">
           <IconSearchBar className="search-icon" width="20" height="20" />
           <input type="text" placeholder="Search" className="search-input" />
-        </div>
+        </div> */}
         <div className="icon">
           <Link to="/notifications">
             <div className="notification-icon-container">

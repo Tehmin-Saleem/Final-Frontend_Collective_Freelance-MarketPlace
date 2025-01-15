@@ -233,7 +233,7 @@ function App() {
           <Route path="/ClientDash" element={<Clientdash />} />
 
           <Route
-            path="/proposals/:proposalId"
+            path="/proposals/:jobId"
             element={
               <JobStatusProvider>
                 <Proposal />

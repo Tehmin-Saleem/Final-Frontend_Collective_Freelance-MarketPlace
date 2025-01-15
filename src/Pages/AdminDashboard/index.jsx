@@ -307,9 +307,9 @@ const AdminDashboard = () => {
             <li>
               <FaEnvelope /> Queries
             </li>
-            <li>
+            {/* <li>
               <FaCog /> Settings
-            </li>
+            </li> */}
           </ul>
         </aside>
 

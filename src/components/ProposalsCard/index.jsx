@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import "./styles.scss";
-import { CommonButton , StarRating} from "../../components/index";
+import { CommonButton, StarRating } from "../../components/index";
 import { Chat } from "../../svg/index";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -30,7 +30,6 @@ const ProposalCard = ({
   coverLetter,
   image,
   due_date,
- 
   jobTitle,
   initialStatus,
   onHireSuccess,
@@ -44,15 +43,11 @@ const ProposalCard = ({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [freelancerData, setFreelancerData] = useState(null);
-  const [completedjob , setCompletedjob] = useState(null);
-
+  const [completedjob, setCompletedjob] = useState(null);
   const [reviews, setReviews] = useState(null);
   const [loading, setLoading] = useState(true);
 
   console.log("freelancer id in proposal card", freelancerId);
-
-
-  
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -66,9 +61,9 @@ const ProposalCard = ({
         const completedresponses = await axios.get(`${BASE_URL}/api/client/completed-jobs/${freelancerId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        console.log("completed " , completedresponses.data.data.totalCompletedJobs)
+        console.log("completed ", completedresponses.data.data.totalCompletedJobs)
         setCompletedjob(completedresponses.data.data.totalCompletedJobs);
-           
+
       } catch (error) {
         // navigate('/signin');
       }
@@ -175,31 +170,37 @@ const ProposalCard = ({
     setShowToast(true);
     setTimeout(() => setShowToast(false), 5000);
   };
+
   const isHireButtonDisabled = useMemo(() => {
     // If this proposal is already hired, we don't want to disable the button
     if (status === 'hired') return false;
-    
+
     // If any proposal is hired (including this one), disable the button
     return isAnyProposalHired;
   }, [status, isAnyProposalHired]);
+
   const handleHireClick = async (e) => {
     e.stopPropagation();
-
+    console.log("Hire button clicked for ProposalID:", ProposalID);
+  
     if (!ProposalID) {
       setError("Invalid proposal ID");
       console.error("ProposalID is undefined");
       return;
     }
-
+  
     setIsLoading(true);
-    setError(null);
-
+    const token = localStorage.getItem("token");
+    const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL;
+    
+    console.log("Making API call to:", `${BASE_URL}/api/client/hire/${ProposalID}`);
+    console.log("With token:", token ? "Token exists" : "No token found");
+  
     try {
-      const token = localStorage.getItem("token");
-      const BASE_URL = import.meta.env.VITE_LOCAL_BASE_URL
+      console.log("Sending hire request...");
       const response = await axios.post(
         `${BASE_URL}/api/client/hire/${ProposalID}`,
-        { status: "hired" }, // Send the status in the request body
+        { status: "hired" },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -207,19 +208,37 @@ const ProposalCard = ({
           },
         }
       );
-
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+      
+      console.log("API Response:", response);
+  
       if (response.status === 200) {
-        onHireSuccess?.(ProposalID);
+        console.log("Hire successful, updating status...");
         setStatus("hired");
         updateJobStatus(ProposalID, "hired");
-        showNotification("Freelancer hired successfully!");
+        onHireSuccess?.(ProposalID);
+        
+        console.log("About to reload page...");
+        // Force a hard reload
+        window.location = window.location.href;
       }
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to hire freelancer. Please try again.";
+      console.error("Full error object:", error);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      const errorMessage = error.response?.data?.message || "Failed to hire freelancer. Please try again.";
       setError(errorMessage);
-      console.error("Error hiring freelancer:", error);
       showNotification(errorMessage);
     } finally {
       setIsLoading(false);
@@ -268,7 +287,7 @@ const ProposalCard = ({
   if (status === null) {
     return <div>Loading...</div>;
   }
- 
+
   return (
     <div className="proposal-card relative">
       {showToast && (
@@ -313,8 +332,8 @@ const ProposalCard = ({
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : reviews !== null ? (
-            <StarRating 
-              rating={Number(reviews)} 
+            <StarRating
+              rating={Number(reviews)}
               showRatingValue={true}
             />
           ) : (
@@ -333,25 +352,25 @@ const ProposalCard = ({
             onClick={handleChatClick}
             disabled={isLoading}
           />
-           {status !== 'hired' ? (
-          <CommonButton
-            text={isLoading ? "Hiring..." : "Hire"}
-            className={`text-[18px] font-Poppins text-[#FFFFFF] rounded-lg font-semibold font-Poppins py-2 px-6 w-full focus:outline-none focus:shadow-outline ${
-              isHireButtonDisabled 
-                ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-                : 'bg-[#4BCBEB] hover:bg-[#3babcb]'
-            }`}
-            onClick={handleHireClick}
-            disabled={isLoading || isHireButtonDisabled}
-          />
-        ) : (
-          <CommonButton
-            text="Hired"
-            className="bg-gray-400 text-[18px] font-Poppins text-[#FFFFFF] rounded-lg font-semibold font-Poppins py-2 px-6 w-full cursor-not-allowed"
-            disabled={true}
-          />
-        )}
-      </div>
+          {status !== 'hired' ? (
+            <CommonButton
+              text={isLoading ? "Hiring..." : "Hire"}
+              className={`text-[18px] font-Poppins text-[#FFFFFF] rounded-lg font-semibold font-Poppins py-2 px-6 w-full focus:outline-none focus:shadow-outline ${
+                isHireButtonDisabled
+                  ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                  : 'bg-[#4BCBEB] hover:bg-[#3babcb]'
+              }`}
+              onClick={handleHireClick}
+              disabled={isLoading || isHireButtonDisabled}
+            />
+          ) : (
+            <CommonButton
+              text="Hired"
+              className="bg-gray-400 text-[18px] font-Poppins text-[#FFFFFF] rounded-lg font-semibold font-Poppins py-2 px-6 w-full cursor-not-allowed"
+              disabled={true}
+            />
+          )}
+        </div>
         {error && (
           <div className="text-red-500 mt-2 text-sm">{error}</div>
         )}
