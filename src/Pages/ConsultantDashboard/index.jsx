@@ -18,7 +18,7 @@ import {
   Legend,
 } from "chart.js";
 import { Spinner } from "../../components/index";
-import Footer from "../../components/footer/foote";
+// import Footer from "../../components/footer/foote";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -312,7 +312,7 @@ const ConsultantDashboard = () => {
             </div>
           </div>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );
