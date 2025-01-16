@@ -168,7 +168,7 @@ function App() {
           <Route path="/profile/:userId" element={<ProfileView />} />
           <Route path="/profile/:userId" element={<ProfileView />} />
           <Route path="/offerform" element={<OfferForm />} />
-
+          <Route path="/profile/:id" element={<ProfileView />} />
           <Route
             path="/freelancercard"
             element={

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import "./styles.scss";
-// import Footer from "../../components/footer/foote";
+import Footer from "../../components/footer/footer";
 
 const ClientDashboard = () => {
   const navigate = useNavigate();
@@ -180,7 +180,7 @@ const ClientDashboard = () => {
           <FaEnvelope className="contact-icon" />
           Contact Us
         </button>
-        {/* <Footer/> */}
+        <Footer/>
       </div>
     </>
   );

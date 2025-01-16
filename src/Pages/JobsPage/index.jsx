@@ -3,30 +3,59 @@ import axios from "axios";
 import { JobsCard, Header, Spinner } from "../../components/index";
 import "./styles.scss";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; // Corrected jwtDecode import
+import {jwtDecode} from "jwt-decode"; // Corrected jwtDecode import
 
 const JobsPage = () => {
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [userMap, setUserMap] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [goToPage, setGoToPage] = useState("");
+  const [filters, setFilters] = useState({
+    type: "", // Fixed or Hourly
+    experienceLevel: "",
+    preferredSkill: "",
+    clientCountry: "",
+  });
+  const handleFilterChange = (key, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [key]: value,
+    }));
+  };
+  useEffect(() => {
+    const filtered = jobs.filter((job) => {
+      const matchesType = !filters.type || (filters.type === "Fixed" ? job.budget_type === "fixed" : job.budget_type === "hourly");
+      const matchesExperience = !filters.experienceLevel || job.project_duration?.experience_level === filters.experienceLevel;
+      const matchesSkill = !filters.preferredSkill || job.preferred_skills?.some((skill) => skill.toLowerCase().includes(filters.preferredSkill.toLowerCase()));
+      const matchesCountry = !filters.clientCountry || job.country?.toLowerCase().includes(filters.clientCountry.toLowerCase());
+      const matchesSearch = job.job_title?.toLowerCase().includes(searchTerm.toLowerCase());
+  
+      return matchesType && matchesExperience && matchesSkill && matchesCountry && matchesSearch;
+    });
+  
+    setFilteredJobs(filtered);
+  }, [filters, searchTerm, jobs]);
+      
+
   const formatTimeDifference = (createdAt) => {
     if (!createdAt || isNaN(new Date(createdAt).getTime())) {
       return "Invalid time"; // Fallback for missing or invalid date
     }
-  
+
     const createdDate = new Date(createdAt);
     const now = new Date();
     const diffInMs = now - createdDate;
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
-  
+
     if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
     if (diffInHours === 1) return "1 hour ago";
@@ -34,9 +63,7 @@ const JobsPage = () => {
     if (diffInDays === 1) return "Yesterday";
     return `${diffInDays} days ago`;
   };
-  
-  
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -64,45 +91,42 @@ const JobsPage = () => {
               headers,
             }),
           ]);
-console.log('payment',paymentMethodsResponse.data)
-console.log('users',userResponse.data)
-console.log('jobs',jobsResponse.data)
-        // Check if paymentMethodsResponse.data.paymentMethods is an array
+
         const paymentMethodsArray = Array.isArray(
           paymentMethodsResponse.data.paymentMethods
         )
           ? paymentMethodsResponse.data.paymentMethods
           : []; // Fallback to empty array if not
 
-        // Create a map of user IDs to country names
         const userCountryMap = userResponse.data.reduce((acc, user) => {
           acc[user._id] = user.country_name;
           return acc;
         }, {});
 
-        // Create a map of client IDs to payment method status
         const paymentMethodMap = paymentMethodsArray.reduce((acc, method) => {
           if (method && method.client_id) {
             acc[method.client_id.toString()] = true; // Mark as verified
           }
           return acc;
         }, {});
-console.log('paymentmap', paymentMethodMap)
+
         setPaymentMethods(paymentMethodMap);
 
-        // Combine job data with payment method status and country name
         const jobsWithPaymentStatus = jobsResponse.data.jobPosts.map((job) => {
           const clientId = job.client_id?._id;
           return {
             ...job,
-            paymentMethodStatus: paymentMethodMap[clientId] ? "Payment Verified" : "No Payment Method Available",
+            paymentMethodStatus: paymentMethodMap[clientId]
+              ? "Payment Verified"
+              : "No Payment Method Available",
             country: clientId
-            ? userCountryMap[clientId] || "Unknown"
-            : "Unknown",
-        };
-      });
+              ? userCountryMap[clientId] || "Unknown"
+              : "Unknown",
+          };
+        });
 
         setJobs(jobsWithPaymentStatus);
+        setFilteredJobs(jobsWithPaymentStatus);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error fetching data: " + error.message);
@@ -124,67 +148,32 @@ console.log('paymentmap', paymentMethodMap)
       return "Rate not specified";
     }
   };
+
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+
+    const filtered = jobs.filter((job) => {
+      const titleMatch = job.job_title?.toLowerCase().includes(term);
+      const tagsMatch = job.preferred_skills?.some((tag) =>
+        tag.toLowerCase().includes(term)
+      );
+      const timelineMatch = job.project_duration?.duration_of_work
+        ?.toLowerCase()
+        .includes(term);
+      const countryMatch = job.country?.toLowerCase().includes(term);
+
+      return titleMatch || tagsMatch || timelineMatch || countryMatch;
+    });
+
+    setFilteredJobs(filtered);
+  };
+
   const indexOfLastJob = currentPage * rowsPerPage;
   const indexOfFirstJob = indexOfLastJob - rowsPerPage;
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-  const totalPages = Math.ceil(jobs.length / rowsPerPage);
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(filteredJobs.length / rowsPerPage);
 
-  // Pagination handlers
-  const handleRowsPerPageChange = (event) => {
-    const newRowsPerPage = parseInt(event.target.value);
-    setRowsPerPage(newRowsPerPage);
-    setCurrentPage(1); // Reset to first page when changing rows per page
-  };
-
-  const handlePageClick = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  const handleGoToPage = (event) => {
-    event.preventDefault();
-    const pageNumber = parseInt(goToPage);
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-      setGoToPage("");
-    }
-  };
-
-  // Generate page numbers for pagination
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 7;
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      
-      if (currentPage > 3) {
-        pages.push("ellipsis1");
-      }
-      
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(currentPage + 1, totalPages - 1);
-      
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-      
-      if (currentPage < totalPages - 2) {
-        pages.push("ellipsis2");
-      }
-      
-      if (totalPages > 1) {
-        pages.push(totalPages);
-      }
-    }
-
-    return pages;
-  };
   if (loading) return <Spinner size={100} alignCenter />;
   if (error) return <div>{error}</div>;
 
@@ -192,6 +181,42 @@ console.log('paymentmap', paymentMethodMap)
     <div className="jobs-page">
       <Header />
       <h1 className="jobs-heading">All Jobs</h1>
+      
+      <input
+        type="text"
+        placeholder="Search by title, tags, timeline, or country"
+        value={searchTerm}
+        onChange={handleSearch}
+        className="search-bar"
+      />
+      
+      <div className="filters">
+        <select onChange={(e) => handleFilterChange("type", e.target.value)}>
+          <option value="">All Types</option>
+          <option value="Fixed">Fixed</option>
+          <option value="Hourly">Hourly</option>
+        </select>
+        
+        <select onChange={(e) => handleFilterChange("experienceLevel", e.target.value)}>
+          <option value="">All Levels</option>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Expert">Expert</option>
+        </select>
+        
+        <input
+          type="text"
+          placeholder="Filter by skill"
+          onChange={(e) => handleFilterChange("preferredSkill", e.target.value)}
+        />
+        
+        <input
+          type="text"
+          placeholder="Filter by country"
+          onChange={(e) => handleFilterChange("clientCountry", e.target.value)}
+        />
+      </div>
+      
       <div className="jobs-container">
         {currentJobs.map((job) => (
           <JobsCard
@@ -207,57 +232,43 @@ console.log('paymentmap', paymentMethodMap)
             proposalCount={job.proposalCount}
             paymentMethodStatus={job.paymentMethodStatus}
             location={job.country}
-            // Add these new props
             clientName={
               job.client_id
                 ? `${job.client_id.first_name} ${job.client_id.last_name}`
                 : "Unknown"
             }
             createdAt={job.createdAt ? formatTimeDifference(job.createdAt) : "Date not available"}
-
-
             clientLocation={job.client_id?.country_name || "Unknown"}
           />
         ))}
       </div>
+      
       <div className="pagination">
         <span>Rows per page</span>
-        <select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+        <select
+          value={rowsPerPage}
+          onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
+        >
           <option value={5}>5</option>
           <option value={10}>10</option>
           <option value={15}>15</option>
         </select>
+        
         <div className="page-controls">
-          {getPageNumbers().map((page, index) => (
-            page === "ellipsis1" || page === "ellipsis2" ? (
-              <span key={page}>...</span>
-            ) : (
-              <span
-                key={page}
-                onClick={() => handlePageClick(page)}
-                style={{
-                  cursor: 'pointer',
-                  fontWeight: currentPage === page ? 'bold' : 'normal',
-                  margin: '0 5px',
-                  padding: '0 5px'
-                }}
-              >
-                {page}
-              </span>
-            )
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              className={currentPage === i + 1 ? "active" : ""}
+            >
+              {i + 1}
+            </button>
           ))}
         </div>
-        <span>Go to page</span>
-        <input
-          type="text"
-          value={goToPage}
-          onChange={(e) => setGoToPage(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleGoToPage(e)}
-        />
-        <button onClick={handleGoToPage}>→</button>
       </div>
     </div>
   );
+  
 };
 
 export default JobsPage;

@@ -172,7 +172,14 @@ const Header = () => {
               config
             );
             console.log("Response data for consultant profile:", response.data);
-            navigate(response.data.exists ? `/ConsultantProfileView/${userId}` : "/ConsultantProfileForm");
+            // Check if response has profile data
+            if (response.data && response.data.profile) {
+              // Profile exists, navigate to view page
+              navigate("/ConsultantProfileView");
+            } else {
+              // No profile data, navigate to form
+              navigate("/ConsultantProfileForm");
+            }
           } catch (error) {
             if (error.response && error.response.status === 404) {
               console.log("Consultant profile not found, navigating to form.");
